@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/manager.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="managerHome.html"><i class="fas fa-home"></i> 用户管理</a>
+        <a href="claims.html"><i class="fas fa-user"></i> 申请领回表</a>
+        <a href="complaints.html"><i class="fas fa-upload"></i> 投诉</a>
+    </div>
+    
+    <div id="content">
+        <h2>用户管理</h2>
+        <div id="item-list"></div>
+    </div>
+
+        <!-- 删除用户悬浮框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h2>确认删除</h2>
+            <p>你确定要删除此用户吗？</p>
+            <div class="modal-footer">
+                <button id="confirmDelete">确认</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 禁用用户悬浮框 -->
+    <div id="disableModal" class="modal">
+        <div class="modal-content">
+            <h2>确认禁用</h2>
+            <p>你确定要禁用此用户吗？</p>
+            <div class="modal-footer">
+                <button id="confirmDisable">确认</button>
+                <button id="cancelDisable">取消</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                url: "http://192.168.3.189:8080/manager/getAllstudents",
+                type: "GET",
+                success: function(students){
+                    $("#item-list").empty();
+                    students.forEach(function(student){
+                        var color = (student.status === "禁用") ? "#FF6F61" : "#2ECC71";
+                        var container = $("<div>")
+                            .addClass("item")
+                            .append($("<div>").addClass("color-bar").css("background-color", color));
+                        var info = $("<div>").addClass("info")
+                            .append($("<p>").text("账号: " + student.account))
+                            .append($("<p>").text("密码: " + student.password))
+                            .append($("<p>").text("状态: " + student.status))
+                            .append($("<p>").text("角色: " + student.role))
+                            .append($("<p>").text("学号: " + student.studentID))
+                            .append($("<p>").text("名字: " + student.name))
+                            .append($("<p>").text("联系方式: " + student.phone))
+                            .append($("<p>").text("邮箱: " + student.email));
+                        var actions = $("<div>").addClass("actions")
+                            .append($("<button>").text("删除").addClass("btn btn-red delete-btn").data("account", student.account))
+                            .append($("<button>").text("禁用").addClass("btn btn-yellow disable-btn").data("account", student.account));
+                        container.append(info).append(actions);
+                        $("#item-list").append(container);
+                    });
+
+                    // 监听删除按钮点击事件
+                    $(document).on("click", ".delete-btn", function() {
+                        var account = $(this).data("account");
+                        $("#confirmDelete").data("account", account);
+                        $("#deleteModal").css("display", "block");
+                    });
+
+                    // 监听禁用按钮点击事件
+                    $(document).on("click", ".disable-btn", function() {
+                        var account = $(this).data("account");
+                        $("#confirmDisable").data("account", account);
+                        $("#cancelDisable").data("account", account);
+                        $("#disableModal").css("display", "block");
+                    });
+
+                    // 关闭悬浮框
+                    $(".close").click(function() {
+                        $("#deleteModal").css("display", "none");
+                        $("#disableModal").css("display", "none");
+                    });
+
+                    // 在用户点击悬浮框外部时关闭悬浮框
+                    $(window).click(function(event) {
+                        if ($(event.target).is("#deleteModal") || $(event.target).is("#disableModal")) {
+                            $("#deleteModal").css("display", "none");
+                            $("#disableModal").css("display", "none");
+                        }
+                    });
+
+                     // 确认删除用户
+                    $("#confirmDelete").click(function() {
+                        var account = $(this).data("account");
+                        $.ajax({
+                            url: "http://192.168.3.189:8080/manager/deleteStudent",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({account: account}),
+                            success: function() {
+                                alert("用户删除成功");
+                                $("#deleteModal").css("display", "none");
+                                location.reload(); // 刷新页面以更新用户列表
+                            }
+                        });
+                    });
+
+                    // 确认禁用用户
+                    $("#confirmDisable").click(function() {
+                        var account = $(this).data("account");
+                        $.ajax({
+                            url: "http://192.168.3.189:8080/manager/disableStudent",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({account: account}),
+                            success: function() {
+                                alert("用户禁用成功");
+                                $("#disableModal").css("display", "none");
+                                location.reload(); // 刷新页面以更新用户状态
+                            }
+                        });
+                    });
+
+                    // 取消禁用用户
+                    $("#cancelDisable").click(function() {
+                        var account = $(this).data("account");
+                        $.ajax({
+                            url: "http://192.168.3.189:8080/manager/cancelDisable",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({account: account}),
+                            success: function() {
+                                alert("用户解禁成功");
+                                $("#disableModal").css("display", "none");
+                                location.reload(); // 刷新页面以更新用户状态
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

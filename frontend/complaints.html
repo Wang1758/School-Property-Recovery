@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投诉</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/manager.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="managerHome.html"><i class="fas fa-home"></i> 用户管理</a>
+        <a href="claims.html"><i class="fas fa-user"></i> 申请领回表</a>
+        <a href="complaints.html"><i class="fas fa-upload"></i> 投诉</a>
+    </div>
+    
+    <div id="content">
+        <h2>投诉</h2>
+        <div id="item-list"></div>
+    </div>
+
+        <!-- 处理意见悬浮框 -->
+    <div id="processModal" class="modal">
+        <div class="modal-content">
+            <h2>处理意见</h2>
+            <div>
+                <label for="opinion">处理意见</label>
+                <input type="text" id="opinion" placeholder="请输入处理意见">
+            </div>
+            <p>你确定要处理吗？</p>
+            <div class="modal-footer">
+                <button id="confirm-btn">确认</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                url: "http://192.168.3.189:8080/manager/getAllComplaints",
+                type: "GET",
+                success: function(complaints){
+                    $("#item-list").empty();
+                    complaints.forEach(function(complaint){
+                        var container = $("<div>")
+                            .addClass("item")
+                        var info = $("<div>").addClass("info")
+                            .append($("<p>").text("投诉人账号: " + complaint.account))
+                            .append($("<p>").text("投诉时间: " + complaint.complainttime))
+                            .append($("<p>").text("投诉原因: " + complaint.complaintreason))
+                            .append($("<p>").text("投诉人名字: " + complaint.name))
+                            .append($("<p>").text("投诉人联系方式: " + complaint.phone))
+                        var actions = $("<div>").addClass("actions")
+                            .append($("<button>").text("处理").addClass("btn btn-green btn-process").data("complaintID", complaint.complaintID))
+                        container.append(info).append(actions);
+                        $("#item-list").append(container);
+                    });
+
+                    // 监听处理按钮点击事件
+                    $(document).on("click", ".btn-process", function() {
+                        var complaintID = $(this).data("complaintID");
+                        $("#confirm-btn").data("complaintID", complaintID);
+                        $("#processModal").css("display", "block");
+                    });
+
+
+                    // 关闭悬浮框
+                    $(".close").click(function() {
+                        $("#opinion").val("");
+                        $("#processModal").css("display", "none");
+                    });
+
+                    // 在用户点击悬浮框外部时关闭悬浮框
+                    $(window).click(function(event) {
+                        if ($(event.target).is("#processModal")) {
+                            $("#opinion").val("");
+                            $("#processModal").css("display", "none");
+                        }
+                    });
+
+                     // 确认处理
+                    $("#confirm-btn").click(function() {
+                        var complaintID = $(this).data("complaintID");
+                        var opinion = $("#opinion").val();
+                        var account = localStorage.getItem("account");
+                        var time = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        console.log(account);
+                        if(opinion == ""){
+                            alert("处理意见不能为空");
+                            return;
+                        }
+                        $.ajax({
+                            url: "http://192.168.3.189:8080/manager/processComplaint",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({
+                                complaintID: complaintID, 
+                                opinion: opinion,
+                                account: account,
+                                time: time}),
+                            success: function() {
+                                alert("处理意见提交成功");
+                                $("#processModal").css("display", "none");
+                                location.reload(); // 刷新页面以更新投诉状态
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

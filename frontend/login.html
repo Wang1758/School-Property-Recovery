@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <link rel="stylesheet" href="css/login.css">
+    <script src="http://172.31.233.204/resource/js/jquery.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <h2>用户登录</h2>
+        <div id="login-form">
+            <div class="input-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div id="error-message" class="error-message"></div>
+            <button id="btn" type="button" class="btn">登录</button>
+            <button id="register-btn" type="button" class="register-btn">注册</button>
+        </div>
+    </div>
+    <script>
+        $('#btn').click(function (event) {
+            let username = $('#username').val();
+            let password = $('#password').val();
+
+            // 检查是否为空的用户名和密码
+            if (!username || !password) {
+                $('#error-message').text('请输入用户名和密码').show();
+                return;
+            }
+
+            $('#error-message').hide();
+
+            // 提交表单
+            $.ajax({
+                url: "http://192.168.3.189:8080/user/login",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+                complete:function(xhr) {
+                    if(xhr.status === 302) {
+                    } else if(xhr.status === 200) {
+                        $('body').html(xhr.responseText);
+                        localStorage.setItem("account", username);
+                    } else if(xhr.status === 401) {
+                        $('#error-message').text('用户名或密码错误').show();
+                    } else if(xhr.status === 403){
+                        $('#error-message').text('用户已被禁用').show();
+                    }else {
+                        $('#error-message').text('未知错误').show();
+                    }
+                }
+            });
+        });
+
+        $('#register-btn').click(function (event) {
+            window.location.href = 'register.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>申请表</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/manager.css">
+</head>
+<body>
+    <div class="navbar">
+        <a href="managerHome.html"><i class="fas fa-home"></i> 用户管理</a>
+        <a href="claims.html"><i class="fas fa-user"></i> 申请领回表</a>
+        <a href="complaints.html"><i class="fas fa-upload"></i> 投诉</a>
+    </div>
+    
+    <div id="content">
+        <h2>申请领回表</h2>
+        <div id="item-list"></div>
+    </div>
+
+        <!-- 同意悬浮框 -->
+    <div id="agreeModal" class="modal">
+        <div class="modal-content">
+            <h2>确认同意</h2>
+            <p>你确定要同意此申请吗？</p>
+            <div class="modal-footer">
+                <button id="agree-btn">确认</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 不同意悬浮框 -->
+    <div id="disagreeModal" class="modal">
+        <div class="modal-content">
+            <h2>确认不同意</h2>
+            <p>你确定要不同意此申请吗？</p>
+            <div class="modal-footer">
+                <button id="disagree-btn">确认</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                url: "http://192.168.3.189:8080/manager/getAllApplications",
+                type: "GET",
+                success: function(claims){
+                    $("#item-list").empty();
+                    claims.forEach(function(claim){
+                        var container = $("<div>")
+                            .addClass("item")
+                        var info = $("<div>").addClass("info")
+                            .append($("<p>").text("领回单id: " + claim.claimsID))
+                            .append($("<p>").text("申请人账号: " + claim.account))
+                            .append($("<p>").text("申请时间: " + claim.gettime))
+                            .append($("<p>").text("物品名字: " + claim.itemname))
+                            .append($("<p>").text("物品描述: " + claim.itemdesctiption))
+                            .append($("<p>").text("学生学号: " + claim.studentID))
+                            .append($("<p>").text("学生名字: " + claim.name))
+                            .append($("<p>").text("学生联系方式: " + claim.phone));
+                        var actions = $("<div>").addClass("actions")
+                            .append($("<button>").text("同意").addClass("btn btn-green btn-agree").data("claimsID", claim.claimsID))
+                            .append($("<button>").text("不同意").addClass("btn btn-red btn-disagree").data("claimsID", claim.claimsID));
+                        container.append(info).append(actions);
+                        $("#item-list").append(container);
+                    });
+
+                    // 监听同意按钮点击事件
+                    $(document).on("click", ".btn-agree", function() {
+                        var claimsID = $(this).data("claimsID");
+                        $("#agree-btn").data("claimsID", claimsID);
+                        $("#agreeModal").css("display", "block");
+                    });
+
+                    // 监听禁用按钮点击事件
+                    $(document).on("click", ".btn-disagree", function() {
+                        var claimsID = $(this).data("claimsID");
+                        $("#disagree-btn").data("claimsID", claimsID);
+                        $("#disagreeModal").css("display", "block");
+                    });
+
+                    // 关闭悬浮框
+                    $(".close").click(function() {
+                        $("#agreeModal").css("display", "none");
+                        $("#disagreeModal").css("display", "none");
+                    });
+
+                    // 在用户点击悬浮框外部时关闭悬浮框
+                    $(window).click(function(event) {
+                        if ($(event.target).is("#agreeModal") || $(event.target).is("#disagreeModal")) {
+                            $("#agreeModal").css("display", "none");
+                            $("#disagreeModal").css("display", "none");
+                        }
+                    });
+
+                     // 确认同意申请表
+                    $("#agree-btn").click(function() {
+                        var claimsID = $(this).data("claimsID");
+                        $.ajax({
+                            url: "http://192.168.3.189:8080/manager/agreeApplication",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({claimsID: claimsID}),
+                            success: function() {
+                                alert("同意申请表成功");
+                                $("#agreeModal").css("display", "none");
+                                location.reload(); // 刷新页面以更新申请表状态
+                            }
+                        });
+                    });
+
+                    // 确认不同意申请表
+                    $("#disagree-btn").click(function() {
+                        var claimsID = $(this).data("claimsID");
+                        $.ajax({
+                            url: "http://192.168.3.189:8080/manager/rejectApplication",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({claimsID: claimsID}),
+                            success: function() {
+                                alert("拒绝申请表成功");
+                                $("#disagreeModal").css("display", "none");
+                                location.reload(); // 刷新页面以更新申请表状态
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

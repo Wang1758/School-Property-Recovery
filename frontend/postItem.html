@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布物品</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 用户主页 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .navbar {
+            background-color: #34495e;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #2c3e50;
+        }
+
+        #content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #content div {
+            margin: 10px 0;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        input[type="text"], input[type="password"], input[type="datetime-local"] {
+            padding: 10px;
+            width: calc(100% - 130px);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="radio"] {
+            margin-left: 10px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #saveItem {
+            background-color: #3498db;
+        }
+
+        #saveItem:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="userHome.html"><i class="fas fa-home"></i> 首页</a>
+        <a href="profile.html"><i class="fas fa-user"></i> 个人信息</a>
+        <a href="postItem.html"><i class="fas fa-upload"></i> 发布丢失或拾取的物品</a>
+    </div>
+    
+    <div id="content">
+        <h2>发布丢失或拾取的物品</h2>
+        <div>
+            <label>物品类别:</label>
+            <label> <input type="radio" name="itemtype" value="丢失"> 丢失 </label>
+            <label> <input type="radio" name="itemtype" value="拾取"> 拾取 </label>
+        </div>
+        <div>
+            <label for="itemName">物品名字:</label>
+            <input type="text" id="itemName">
+        </div>
+        <div>
+            <label for="info">物品信息:</label>
+            <input type="text" id="info">
+        </div>
+        <div>
+            <label for="location">地点:</label>
+            <input type="text" id="location">
+        </div>
+        <div>
+            <label for="time">时间:</label>
+            <input type="datetime-local" id="time">
+        </div>
+        <div>
+            <label for="id">证件号:</label>
+            <input type="text" id="id">
+        </div>
+        <button id="saveItem">发布</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#saveItem").click(function() {
+                var account = localStorage.getItem("account");
+                var itemtype = $("input[name='itemtype']:checked").val();
+                var itemName = $("#itemName").val();
+                var itemdesctiption = $("#info").val();
+                var place = $("#location").val();
+                var time = $("#time").val();
+                var studentID = $("#id").val();
+                var thistime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                if(!account) {
+                    alert("会话已经过期");
+                    return;
+                }
+
+                time = new Date(time).toISOString().slice(0, 19).replace('T', ' ');
+                $.ajax({
+                    url: "http://192.168.3.189:8080/student/postItem",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        account: account,
+                        itemtype: itemtype,
+                        itemname: itemName,
+                        itemdesctiption: itemdesctiption,
+                        place: place,
+                        time: time,
+                        studentID: studentID,
+                        thistime: thistime
+                    }),
+                    success: function() {
+                        alert("物品提交成功");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

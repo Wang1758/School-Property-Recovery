@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生主页</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 用户主页 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .navbar {
+            background-color: #34495e;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #2c3e50;
+        }
+
+        #content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .color-bar {
+            width: 10px;
+            height: 100%;
+        }
+
+        .info {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px; /* 圆润矩形 */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        .btn-blue {
+            background-color: #3498db;
+        }
+
+        .btn-blue:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .btn-green {
+            background-color: #2ecc71;
+        }
+
+        .btn-green:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        /* 悬浮框样式 */
+        .modal {
+            display: none; /* 默认隐藏 */
+            position: fixed; /* 固定位置 */
+            z-index: 1; /* 置于顶层 */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* 允许滚动 */
+            background-color: rgb(0, 0, 0); /* 黑色背景 */
+            background-color: rgba(0, 0, 0, 0.4); /* 透明黑色背景 */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            display: flex; /* 使内容居中排布 */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content > div {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .modal-content label {
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .modal-content input[type="text"] {
+            width: 80%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #submitApplication {
+            background-color: #2ecc71;
+            padding: 10px 20px;
+            border-radius: 8px; /* 圆润矩形 */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #submitComplaint {
+            background-color: #2ecc71;
+            padding: 10px 20px;
+            border-radius: 8px; /* 圆润矩形 */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #submitApplication:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        .complaint-btn {
+            background-color: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 8px; /* 圆润矩形 */
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        .complaint-btn:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="userHome.html"><i class="fas fa-home"></i> 首页</a>
+        <a href="profile.html"><i class="fas fa-user"></i> 个人信息</a>
+        <a href="postItem.html"><i class="fas fa-upload"></i> 发布丢失或拾取的物品</a>
+    </div>
+    
+    <div id="content">
+        <h2>首页</h2>
+        <div id="item-list"></div>
+    </div>
+
+    <!-- 悬浮框 -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <h2>申请领回表</h2>
+            <div>
+                <label for="applicantName">申请人名字:</label>
+                <input type="text" id="applicantName">
+            </div>
+            <div>
+                <label for="applicantContact">联系方式:</label>
+                <input type="text" id="applicantContact">
+            </div>
+            <div class="modal-footer">
+                <button id="submitApplication">提交</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新的悬浮框用于查看所有申请领回表 -->
+    <div id="viewApplicationsModal" class="modal">
+        <div class="modal-content">
+            <h2>所有申请领回表</h2>
+            <div id="application-list"></div>
+            <div class="modal-footer">
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+        <!-- 新的悬浮框用于填写投诉信息 -->
+    <div id="complaintModal" class="modal">
+        <div class="modal-content">
+            <h2>投诉表</h2>
+            <div>
+                <label for="complaintReason">投诉原因:</label>
+                <input type="text" id="complaintReason">
+            </div>
+            <div>
+                <label for="complaintCategory">投诉类别:</label>
+                <input type="text" id="complaintCategory">
+            </div>
+            <div class="modal-footer">
+                <button id="submitComplaint">提交投诉</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                url: "http://192.168.3.189:8080/student/getAllItems",
+                type: "GET",
+                success: function(items){
+                    $("#item-list").empty();
+                    items = JSON.parse(items);
+                    items.forEach(function(item){
+                        var color = (item.itemtype === "丢失") ? "#FF6F61" : "#2ECC71";
+                        var container = $("<div>")
+                            .addClass("item")
+                            .attr("data-itemid", item.itemid)
+                            .append($("<div>").addClass("color-bar").css("background-color", color));
+                        var info = $("<div>").addClass("info")
+                            .append($("<p>").text("类型: " + item.itemtype))
+                            .append($("<p>").text("名称: " + item.itemname))
+                            .append($("<p>").text("信息: " + item.itemdesctiption))
+                            .append($("<p>").text("地点: " + item.place))
+                            .append($("<p>").text("时间: " + item.time))
+                            .append($("<p>").text("证件号: " + item.studentID));
+                        container.append(info);
+                        if (item.itemtype === "拾取") {
+                            var btnSubmit = $("<button>").text("提交申请领回表").addClass("btn btn-blue");
+                            var btnView = $("<button>").text("查看所有申请领回表").addClass("btn btn-green").css("margin-left", "10px");
+                            container.append($("<div>").addClass("actions").append(btnSubmit).append(btnView));
+
+                            // 显示悬浮框
+                            btnSubmit.click(function() {
+                                $("#submitApplication").data("itemid", item.itemid);
+                                $("#myModal").css("display", "block");
+                            });
+
+                            // 显示查看所有申请表的悬浮框
+                            btnView.click(function() {
+                                var itemid = item.itemid;
+                                $.ajax({
+                                    url: "http://192.168.3.189:8080/student/getApplicationsForItem",
+                                    type: "POST",
+                                    contentType: "application/json",
+                                    data: JSON.stringify({itemid: itemid}),
+                                    success: function(applications){
+                                        $("#application-list").empty();
+                                        applications = JSON.parse(applications);
+                                        applications.forEach(function(application){
+                                            var applicationContainer = $("<div>").addClass("item")
+                                                .append($("<div>").addClass("info")
+                                                    .append($("<p>").text("申请人名字: " + application.name))
+                                                    .append($("<p>").text("申请人账号: " + application.account))
+                                                    .append($("<p>").text("联系方式: " + application.phone)))
+                                                .append($("<button>").text("投诉").addClass("btn complaint-btn").data("claimsID", application.claimsID));
+                                            $("#application-list").append(applicationContainer);
+                                        });
+                                        $("#viewApplicationsModal").css("display", "block");
+                                    }
+                                });
+                            });
+                        }
+                        $("#item-list").append(container);
+                    });
+                }
+            });
+
+            // 关闭悬浮框
+            $(".close").click(function() {
+                // 清空悬浮框
+                $("#applicantName").val("");
+                $("#applicantContact").val("");
+                $("#complaintReason").val("");
+                $("#complaintCategory").val("");
+                $("#myModal").css("display", "none");
+                $("#viewApplicationsModal").css("display", "none");
+                $("#complaintModal").css("display", "none");
+            });
+
+            // 在用户点击悬浮框外部时关闭悬浮框
+            $(window).click(function(event) {
+                if ($(event.target).is("#myModal")|| $(event.target).is("#viewApplicationsModal") || $(event.target).is("#complaintModal")) {
+                    // 清空悬浮框
+                    $("#applicantName").val("");
+                    $("#applicantContact").val("");
+                    $("#complaintReason").val("");
+                    $("#complaintCategory").val("");
+                    $("#myModal").css("display", "none");
+                    $("#viewApplicationsModal").css("display", "none");
+                    $("#complaintModal").css("display", "none");
+                }
+            });
+
+            // 提交申请领回表
+            $("#submitApplication").click(function() {
+                var applicantName = $("#applicantName").val();
+                var applicantContact = $("#applicantContact").val();
+                // 获取当前物品id以及申请人账号
+                var account = localStorage.getItem("account");
+                var itemid = $(this).data("itemid");
+                var time = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                
+                // 验证输入
+                if (applicantName === "" || applicantContact === "") {
+                    alert("请完整填写表格");
+                    return;
+                }
+
+                //发送数据到后台
+                $.ajax({
+                    url: "http://192.168.3.189:8080/student/submitApplication",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        applicantName: applicantName,
+                        applicantContact: applicantContact,
+                        account: account,
+                        itemid: itemid,
+                        gettime: time
+                    }),
+                    success: function() {
+                        alert("申请提交成功");
+                        // 清空悬浮框
+                        $("#applicantName").val("");
+                        $("#applicantContact").val("");
+                        // 关闭悬浮框
+                        $("#myModal").css("display", "none");
+                    }
+                });
+            });
+
+            // 监听投诉按钮
+            $(document).on("click", ".complaint-btn", function() {
+                var claimsID = $(this).data("claimsID");
+                $("#submitComplaint").data("claimsID", claimsID);
+                $("#complaintModal").css("display", "block");
+            });
+
+            // 提交投诉
+            $("#submitComplaint").click(function() {
+                var complaintReason = $("#complaintReason").val();
+                var complaintCategory = $("#complaintCategory").val();
+                var claimsID = $(this).data("claimsID");
+                var account = localStorage.getItem("account");
+                var time = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+                // 验证输入
+                if (complaintReason === "" || complaintCategory === "") {
+                    alert("请完整填写表格");
+                    return;
+                }
+
+                // 发送数据到后台
+                $.ajax({
+                    url: "http://192.168.3.189:8080/student/submitComplaint",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        complaintReason: complaintReason,
+                        complaintCategory: complaintCategory,
+                        claimsID: claimsID,
+                        account: account,
+                        time: time
+                    }),
+                    success: function() {
+                        alert("投诉提交成功");
+                        // 清空悬浮框
+                        $("#complaintReason").val("");
+                        $("#complaintCategory").val("");
+                        // 关闭悬浮框
+                        $("#complaintModal").css("display", "none");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

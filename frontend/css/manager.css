@@ -1,0 +1,253 @@
+        /* 管理员主页 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .navbar {
+            background-color: #34495e;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }        
+        .navbar a:hover {
+            background-color: #2c3e50;
+        }
+
+        #content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .item {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .color-bar {
+            width: 10px;
+            height: 100%;
+        }
+
+        .info {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-red {
+            background-color: #e74c3c;
+        }
+
+        .btn-red:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+
+        .btn-yellow {
+            background-color: #f1c40f;
+        }
+
+        .btn-yellow:hover {
+            background-color: #d4ac0d;
+            transform: scale(1.05);
+        }
+
+        .btn-green {
+            background-color: #2ecc71;
+        }
+
+        .btn-green:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        /* 悬浮框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content > div {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .modal-content label {
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .modal-content input[type="text"] {
+            width: 80%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        #confirmDelete {
+            background-color: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #confirmDelete:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+
+        #confirmDisable {
+            background-color: #f1c40f;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #confirmDisable:hover {
+            background-color: #d4ac0d;
+            transform: scale(1.05);
+        }
+
+        #cancelDisable {
+            background-color: #3498db;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #cancelDisable:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        #agree-btn {
+            background-color: #2ecc71;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #agree-btn:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        #disagree-btn {
+            background-color: #e74c3c;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #disagree-btn:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+
+        #confirm-btn {
+            background-color: #2ecc71;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+            color: white;
+        }
+
+        #confirm-btn:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }

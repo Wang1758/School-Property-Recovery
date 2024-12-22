@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <link rel="stylesheet" href="css/login.css">
+    <script src="http://172.31.233.204/resource/js/jquery.js"></script>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <h2>用户注册</h2>
+        <div id="login-form">
+            <div class="input-group">
+                <div class="tooltip", id="username-tooltip">用户名已存在</div>
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="input-group">
+                <label for="confirm-password">确认密码</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+            </div>
+            <div id="error-message" class="error-message"></div>
+            <button id="btn" type="button" class="btn">注册</button>
+            <button id="login-btn" type="button" class="register-btn">登录</button>
+        </div>
+    </div>
+
+    <script>
+        $('#btn').click(function (event) {
+            let username = $('#username').val();
+            let password = $('#password').val();
+            let confirmPassword = $('#confirm-password').val();
+
+            // 检查是否为空的用户名、密码、确认密码
+            if (!username || !password || !confirmPassword) {
+                $('#error-message').text('请输入用户名、密码和确认密码').show();
+                return;
+            }
+            // 检查密码和确认密码是否一致
+            if (password !== confirmPassword) {
+                $('#error-message').text('密码与确认密码不一致').show();
+                return;
+            }
+
+            $('#error-message').hide();
+
+
+            // 提交表单
+            $.ajax({
+                url: "http://192.168.3.189:8080/user/register",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+                success: function (response) {
+                    if(typeof response == 'string') {
+                        response = JSON.parse(response);
+                    }
+                    if (response.status == "200") {
+                        // 弹窗提示注册成功
+                        if (confirm('注册成功，是否跳转到登录页面？')) {
+                            window.location.href = 'login.html';
+                        }
+                    } else {
+                        $('#username-tooltip').text('用户名已存在').show();
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('服务器异常').show();
+                }
+            });
+
+        });
+
+        $('#username').blur(function () {
+            let username = $('#username').val();
+            if(!username) {
+                return;
+            }
+            $.ajax({
+                url: "http://192.168.3.189:8080/user/check_username",
+                type: 'POST',
+                contentType: "application/json",  
+                data: JSON.stringify({ username: username }),
+                success: function (response) {
+                        $('#username-tooltip').hide();   
+                },
+                error: function (response) {
+                    if(response.status == 409) {
+                        $('#username-tooltip').text('用户名已存在').show();
+                    }else {
+                        $('#error-message').text('服务器异常').show();
+                    }
+                }
+
+            })
+        });
+
+        $('#login-btn').click(function (event) {
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        });
+
+    </script>
+</body>
+
+</html>
